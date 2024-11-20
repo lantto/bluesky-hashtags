@@ -3,6 +3,7 @@ const url = "wss://jetstream2.us-east.bsky.network/subscribe?wantedCollections=a
 // Enhanced data structure to store hashtag information
 const hashtagData = new Map(); // Map<string, HashtagInfo>
 let currentSortMode = 'uses'; // 'uses', 'likes', or 'average'
+let minUsesForAverage = 2;
 
 // Helper class to store hashtag information
 class HashtagInfo {
@@ -32,8 +33,14 @@ function updateHashtagList() {
     const hashtagContent = document.getElementById('hashtag-content');
     
     // Convert Map to array and sort based on selected mode
-    const sortedHashtags = Array.from(hashtagData.entries())
-        .sort((a, b) => {
+    let sortedHashtags = Array.from(hashtagData.entries());
+
+    if (currentSortMode === 'average') {
+        // Filter by minimum uses when sorting by average
+        sortedHashtags = sortedHashtags.filter(([_, data]) => data.count >= minUsesForAverage);
+    }
+
+    sortedHashtags = sortedHashtags.sort((a, b) => {
             switch (currentSortMode) {
                 case 'uses':
                     return b[1].count - a[1].count;
@@ -45,7 +52,7 @@ function updateHashtagList() {
                     return b[1].count - a[1].count;
             }
         })
-        .slice(0, 10);
+        .slice(0, 20); // Increased to 20
 
     const html = sortedHashtags.map(([tag, data]) => `
         <div class="hashtag-item">
@@ -126,8 +133,20 @@ ws.onclose = () => {
 // Add event listener for sort selection
 document.getElementById('sortSelect').addEventListener('change', (event) => {
     currentSortMode = event.target.value;
+    // Show/hide min uses input based on sort mode
+    const minUsesContainer = document.getElementById('minUsesContainer');
+    minUsesContainer.classList.toggle('visible', currentSortMode === 'average');
     updateHashtagList();
 });
 
-// Initial display setup
+// Add event listener for minimum uses input
+document.getElementById('minUses').addEventListener('change', (event) => {
+    minUsesForAverage = parseInt(event.target.value) || 2;
+    if (currentSortMode === 'average') {
+        updateHashtagList();
+    }
+});
+
+// Initial setup
+document.getElementById('minUsesContainer').classList.toggle('visible', currentSortMode === 'average');
 updateHashtagList();
