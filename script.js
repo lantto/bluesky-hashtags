@@ -100,6 +100,7 @@ function updateHashtagList() {
                    target="_blank" 
                    class="hashtag-link" 
                    onclick="event.stopPropagation()">#${tag}</a>
+                <button class="view-posts-btn" onclick="showPosts('${tag}')">View Posts</button>
             </div>
             <div>${data.count}${countUniqueUsersOnly ? '' : ` (${data.users.size} users)`}</div>
             <div>${data.totalLikes}</div>
@@ -223,3 +224,42 @@ document.addEventListener('mouseleave', () => {
 
 // Initial setup
 updateHashtagList();
+
+function showPosts(hashtag) {
+    const tagInfo = hashtagData.get(hashtag.toLowerCase());
+    if (!tagInfo) return;
+
+    const modal = document.getElementById('postsModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalContent = document.getElementById('modalContent');
+
+    modalTitle.textContent = `#${hashtag} Posts`;
+    
+    const postsHtml = Array.from(tagInfo.posts.values())
+        .sort((a, b) => b.likes - a.likes)
+        .map(post => `
+            <div class="post-item">
+                <div>${post.text}</div>
+                <div class="post-stats">
+                    ❤️ ${post.likes} likes · 
+                    <a href="${post.url}" target="_blank">View on Bluesky</a>
+                </div>
+            </div>
+        `).join('');
+
+    modalContent.innerHTML = postsHtml || 'No posts found';
+    modal.style.display = 'block';
+}
+
+function closeModal() {
+    const modal = document.getElementById('postsModal');
+    modal.style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('postsModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+}
