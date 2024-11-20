@@ -13,6 +13,7 @@ const allPosts = new Map(); // Central storage for all posts
 let isHovering = false;
 let maxHashtagsPerPost = null; // null means no limit is active
 let maxHashtagsLimit = 1; // Default limit when enabled
+let topListLimit = 20; // Default value
 
 class HashtagInfo {
     constructor() {
@@ -134,7 +135,7 @@ function updateHashtagList() {
                     return b[1].count - a[1].count;
             }
         })
-        .slice(0, 20);
+        .slice(0, topListLimit);
 
     const html = sortedHashtags.map(([tag, data]) => `
         <div class="hashtag-item">
@@ -370,4 +371,10 @@ document.getElementById('maxHashtagsLimit').addEventListener('change', (event) =
         forceUpdate = true;
         updateHashtagList();
     }
+});
+
+document.getElementById('topListLimit').addEventListener('change', (event) => {
+    topListLimit = parseInt(event.target.value) || 20;
+    forceUpdate = true;  // Bypass throttle
+    updateHashtagList();
 });

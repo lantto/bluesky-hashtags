@@ -409,6 +409,20 @@
         .view-posts-btn::before {
             content: "View Posts";
         }
+
+        .bottom-controls {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            padding: 0 20px;
+        }
+
+        @media (max-width: 480px) {
+            .bottom-controls {
+                padding: 0 10px;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -461,6 +475,16 @@
                 <div>Actions</div>
             </div>
             <div id="hashtag-content"></div>
+        </div>
+        <div class="bottom-controls">
+            <div class="min-uses-container">
+                <label for="topListLimit">Show top:</label>
+                <input type="number" 
+                       id="topListLimit" 
+                       class="min-uses-input" 
+                       value="20" 
+                       min="1">
+            </div>
         </div>
     </div>
     <div id="postsModal" class="modal">
