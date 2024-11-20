@@ -4,6 +4,8 @@ const hashtagData = new Map();
 let currentSortMode = 'uses';
 let minUsesForAverage = 2;
 let countUniqueUsersOnly = true;
+let isSelecting = false;
+let updatePending = false;
 
 class HashtagInfo {
     constructor() {
@@ -46,6 +48,12 @@ class PostInfo {
 }
 
 function updateHashtagList() {
+    if (isSelecting) {
+        updatePending = true;
+        return;
+    }
+    updatePending = false;
+
     const hashtagContent = document.getElementById('hashtag-content');
     
     let sortedHashtags = Array.from(hashtagData.entries());
@@ -153,6 +161,28 @@ document.getElementById('minUses').addEventListener('change', (event) => {
 document.getElementById('uniqueUsers').addEventListener('change', (event) => {
     countUniqueUsersOnly = event.target.checked;
     updateHashtagList();
+});
+
+document.getElementById('hashtag-list').addEventListener('mousedown', () => {
+    isSelecting = true;
+});
+
+document.addEventListener('mouseup', () => {
+    if (isSelecting) {
+        isSelecting = false;
+        if (updatePending) {
+            updateHashtagList();
+        }
+    }
+});
+
+document.addEventListener('mouseleave', () => {
+    if (isSelecting) {
+        isSelecting = false;
+        if (updatePending) {
+            updateHashtagList();
+        }
+    }
 });
 
 // Initial setup
