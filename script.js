@@ -6,6 +6,9 @@ let minUsesForAverage = 2;
 let countUniqueUsersOnly = true;
 let isSelecting = false;
 let updatePending = false;
+let lastUpdateTime = 0;
+const UPDATE_THROTTLE = 1000; // Only update once per second
+let forceUpdate = false;
 
 class HashtagInfo {
     constructor() {
@@ -52,6 +55,15 @@ function updateHashtagList() {
         updatePending = true;
         return;
     }
+    
+    // Only throttle for WebSocket updates, not for user-initiated changes
+    const now = Date.now();
+    if (!forceUpdate && now - lastUpdateTime < UPDATE_THROTTLE) {
+        return;
+    }
+    lastUpdateTime = now;
+    forceUpdate = false;  // Reset the force flag
+    
     updatePending = false;
 
     const hashtagContent = document.getElementById('hashtag-content');
@@ -80,7 +92,12 @@ function updateHashtagList() {
 
     const html = sortedHashtags.map(([tag, data]) => `
         <div class="hashtag-item">
-            <div>#${tag}</div>
+            <div>
+                <a href="https://bsky.app/search?q=%23${encodeURIComponent(tag)}" 
+                   target="_blank" 
+                   class="hashtag-link" 
+                   onclick="event.stopPropagation()">#${tag}</a>
+            </div>
             <div>${data.count}${countUniqueUsersOnly ? '' : ` (${data.users.size} users)`}</div>
             <div>${data.totalLikes}</div>
             <div>${data.averageLikes.toFixed(2)}</div>
@@ -150,16 +167,19 @@ ws.onclose = () => {
 
 document.getElementById('sortSelect').addEventListener('change', (event) => {
     currentSortMode = event.target.value;
+    forceUpdate = true;  // Bypass throttle
     updateHashtagList();
 });
 
 document.getElementById('minUses').addEventListener('change', (event) => {
     minUsesForAverage = parseInt(event.target.value) || 2;
+    forceUpdate = true;  // Bypass throttle
     updateHashtagList();
 });
 
 document.getElementById('uniqueUsers').addEventListener('change', (event) => {
     countUniqueUsersOnly = event.target.checked;
+    forceUpdate = true;  // Bypass throttle
     updateHashtagList();
 });
 
