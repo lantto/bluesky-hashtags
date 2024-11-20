@@ -291,11 +291,13 @@ function showPosts(hashtag) {
 
     modalContent.innerHTML = postsHtml || 'No posts found';
     modal.style.display = 'block';
+    document.body.classList.add('modal-open');
 }
 
 function closeModal() {
     const modal = document.getElementById('postsModal');
     modal.style.display = 'none';
+    document.body.classList.remove('modal-open');
 }
 
 // Close modal when clicking outside

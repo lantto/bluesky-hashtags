@@ -89,6 +89,30 @@
             max-height: 80vh;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #modalTitle {
+            margin-top: 0;
+            padding-right: 40px;
+        }
+
+        #modalContent {
+            overflow-y: auto;
+            flex-grow: 1;
+            padding-right: 10px;
+        }
+
+        .close-button {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 1;
         }
 
         .post-item {
@@ -120,14 +144,7 @@
             height: 100%;
             background-color: rgba(0, 0, 0, 0.5);
             z-index: 1000;
-        }
-
-        .close-button {
-            position: absolute;
-            right: 20px;
-            top: 10px;
-            font-size: 24px;
-            cursor: pointer;
+            overflow-y: auto;
         }
 
         .post-stats {
@@ -177,6 +194,11 @@
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+
+        body.modal-open {
+            overflow: hidden;
+            padding-right: 15px;
         }
     </style>
 </head>
