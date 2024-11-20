@@ -9,13 +9,14 @@ let updatePending = false;
 let lastUpdateTime = 0;
 const UPDATE_THROTTLE = 1000; // Only update once per second
 let forceUpdate = false;
+const allPosts = new Map(); // Central storage for all posts
 
 class HashtagInfo {
     constructor() {
-        this.totalCount = 0;     // Total number of uses
+        this.totalCount = 0;     
         this.totalLikes = 0;     
-        this.posts = new Map();  
-        this.users = new Set();  // Set of unique users
+        this.postIds = new Set();  // Store post IDs instead of post objects
+        this.users = new Set();  
     }
 
     get count() {
@@ -33,9 +34,17 @@ class HashtagInfo {
         return this.count * (this.count / this.totalLikes);
     }
 
-    addUse(userId) {
+    addUse(userId, postId) {
         this.totalCount++;
         this.users.add(userId);
+        this.postIds.add(postId);
+        
+        // Update total likes based on existing post
+        const post = allPosts.get(postId);
+        if (post) {
+            this.totalLikes = Array.from(this.postIds)
+                .reduce((total, pid) => total + (allPosts.get(pid)?.likes || 0), 0);
+        }
     }
 }
 
@@ -126,6 +135,9 @@ ws.onmessage = (event) => {
         const facets = json.commit?.record?.facets || [];
         const postInfo = new PostInfo(json);
         
+        // Store post centrally first
+        allPosts.set(postInfo.cid, postInfo);
+        
         facets.forEach(facet => {
             facet.features.forEach(feature => {
                 if (feature.$type === 'app.bsky.richtext.facet#tag') {
@@ -136,8 +148,7 @@ ws.onmessage = (event) => {
                     }
                     
                     const tagInfo = hashtagData.get(hashtag);
-                    tagInfo.addUse(postInfo.did);
-                    tagInfo.posts.set(postInfo.cid, postInfo);
+                    tagInfo.addUse(postInfo.did, postInfo.cid);
                 }
             });
         });
@@ -149,15 +160,21 @@ ws.onmessage = (event) => {
         json.commit?.collection === 'app.bsky.feed.like') {
         
         const likedPostCid = json.commit.record.subject.cid;
+        const post = allPosts.get(likedPostCid);
         
-        hashtagData.forEach(tagInfo => {
-            if (tagInfo.posts.has(likedPostCid)) {
-                const post = tagInfo.posts.get(likedPostCid);
-                post.likes++;
-                tagInfo.totalLikes++;
-                updateHashtagList();
-            }
-        });
+        if (post) {
+            post.likes++;
+            
+            // Update total likes for all affected hashtags
+            hashtagData.forEach(tagInfo => {
+                if (tagInfo.postIds.has(likedPostCid)) {
+                    tagInfo.totalLikes = Array.from(tagInfo.postIds)
+                        .reduce((total, pid) => total + (allPosts.get(pid)?.likes || 0), 0);
+                }
+            });
+            
+            updateHashtagList();
+        }
     }
 };
 
@@ -235,7 +252,9 @@ function showPosts(hashtag) {
 
     modalTitle.textContent = `#${hashtag} Posts`;
     
-    const postsHtml = Array.from(tagInfo.posts.values())
+    const postsHtml = Array.from(tagInfo.postIds)
+        .map(pid => allPosts.get(pid))
+        .filter(post => post !== undefined)
         .sort((a, b) => b.likes - a.likes)
         .map(post => `
             <div class="post-item">
