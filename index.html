@@ -42,9 +42,6 @@
             font-size: 14px;
         }
         .min-uses-container {
-            display: none;
-        }
-        .min-uses-container.visible {
             display: flex;
             align-items: center;
             gap: 5px;
@@ -71,8 +68,9 @@
             <h1>Bluesky Hashtag Tracker</h1>
             <div class="sort-controls">
                 <select id="sortSelect" class="sort-select">
-                    <option value="uses">Sort by Uses</option>
-                    <option value="likes">Sort by Total Likes</option>
+                    <option value="uses">Sort by Most Uses</option>
+                    <option value="likes">Sort by Most Likes</option>
+                    <option value="leastLikes">Sort by Least Likes</option>
                     <option value="average">Sort by Average Likes</option>
                     <option value="flop">Sort by Most Used but Least Liked</option>
                 </select>

@@ -50,9 +50,7 @@ function updateHashtagList() {
     
     let sortedHashtags = Array.from(hashtagData.entries());
 
-    if (currentSortMode === 'average') {
-        sortedHashtags = sortedHashtags.filter(([_, data]) => data.count >= minUsesForAverage);
-    }
+    sortedHashtags = sortedHashtags.filter(([_, data]) => data.count >= minUsesForAverage);
 
     sortedHashtags = sortedHashtags.sort((a, b) => {
             switch (currentSortMode) {
@@ -60,11 +58,11 @@ function updateHashtagList() {
                     return b[1].count - a[1].count;
                 case 'likes':
                     return b[1].totalLikes - a[1].totalLikes;
+                case 'leastLikes':
+                    return a[1].totalLikes - b[1].totalLikes;
                 case 'average':
                     return b[1].averageLikes - a[1].averageLikes;
                 case 'flop':
-                    if (a[1].count < minUsesForAverage) return 1;
-                    if (b[1].count < minUsesForAverage) return -1;
                     return b[1].flopScore - a[1].flopScore;
                 default:
                     return b[1].count - a[1].count;
@@ -144,17 +142,12 @@ ws.onclose = () => {
 
 document.getElementById('sortSelect').addEventListener('change', (event) => {
     currentSortMode = event.target.value;
-    const minUsesContainer = document.getElementById('minUsesContainer');
-    minUsesContainer.classList.toggle('visible', 
-        currentSortMode === 'average' || currentSortMode === 'flop');
     updateHashtagList();
 });
 
 document.getElementById('minUses').addEventListener('change', (event) => {
     minUsesForAverage = parseInt(event.target.value) || 2;
-    if (currentSortMode === 'average' || currentSortMode === 'flop') {
-        updateHashtagList();
-    }
+    updateHashtagList();
 });
 
 document.getElementById('uniqueUsers').addEventListener('change', (event) => {
@@ -163,5 +156,4 @@ document.getElementById('uniqueUsers').addEventListener('change', (event) => {
 });
 
 // Initial setup
-document.getElementById('minUsesContainer').classList.toggle('visible', currentSortMode === 'average');
 updateHashtagList();
