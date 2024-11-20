@@ -186,6 +186,7 @@
             display: flex;
             gap: 20px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .min-uses-container {
@@ -207,6 +208,10 @@
         body.modal-open {
             overflow: hidden;
             padding-right: 15px;
+        }
+
+        .min-uses-container input[type="number"] {
+            width: 60px;
         }
     </style>
 </head>
@@ -232,6 +237,18 @@
                 <div id="minUsesContainer" class="min-uses-container" style="opacity: 0.5;">
                     <label for="minUses">Min Uses:</label>
                     <input type="number" id="minUses" class="min-uses-input" value="2" min="1" disabled>
+                </div>
+                <div class="min-uses-container">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="enableMaxHashtags">
+                        <label for="enableMaxHashtags">Limit hashtags per post:</label>
+                    </div>
+                    <input type="number" 
+                           id="maxHashtagsLimit" 
+                           class="min-uses-input" 
+                           value="1" 
+                           min="1"
+                           disabled>
                 </div>
                 <div class="checkbox-container">
                     <input type="checkbox" id="uniqueUsers" checked>

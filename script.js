@@ -11,6 +11,8 @@ const UPDATE_THROTTLE = 1000; // Only update once per second
 let forceUpdate = false;
 const allPosts = new Map(); // Central storage for all posts
 let isHovering = false;
+let maxHashtagsPerPost = null; // null means no limit is active
+let maxHashtagsLimit = 1; // Default limit when enabled
 
 class HashtagInfo {
     constructor() {
@@ -21,11 +23,41 @@ class HashtagInfo {
     }
 
     get count() {
-        return countUniqueUsersOnly ? this.users.size : this.totalCount;
+        if (maxHashtagsPerPost === null) {
+            return countUniqueUsersOnly ? this.users.size : this.totalCount;
+        }
+
+        // Filter posts by hashtag count
+        const validPosts = Array.from(this.postIds)
+            .filter(pid => {
+                const post = allPosts.get(pid);
+                return post && post.hashtagCount <= maxHashtagsPerPost;
+            });
+
+        if (countUniqueUsersOnly) {
+            const validUsers = new Set(
+                validPosts.map(pid => allPosts.get(pid).did)
+            );
+            return validUsers.size;
+        }
+        return validPosts.length;
     }
 
     get averageLikes() {
-        return this.count > 0 ? this.totalLikes / this.count : 0;
+        if (maxHashtagsPerPost === null) {
+            return this.count > 0 ? this.totalLikes / this.count : 0;
+        }
+
+        const validPosts = Array.from(this.postIds)
+            .filter(pid => {
+                const post = allPosts.get(pid);
+                return post && post.hashtagCount <= maxHashtagsPerPost;
+            });
+
+        const filteredLikes = validPosts
+            .reduce((total, pid) => total + (allPosts.get(pid)?.likes || 0), 0);
+
+        return validPosts.length > 0 ? filteredLikes / validPosts.length : 0;
     }
 
     get flopScore() {
@@ -57,6 +89,7 @@ class PostInfo {
         this.text = json.commit.record.text;
         this.likes = 0;
         this.url = `https://bsky.app/profile/${json.did}/post/${json.commit.rkey}`;
+        this.hashtagCount = 0;
     }
 }
 
@@ -137,6 +170,18 @@ ws.onmessage = (event) => {
         
         const facets = json.commit?.record?.facets || [];
         const postInfo = new PostInfo(json);
+        
+        // Count hashtags in the post
+        let hashtagCount = 0;
+        facets.forEach(facet => {
+            facet.features.forEach(feature => {
+                if (feature.$type === 'app.bsky.richtext.facet#tag') {
+                    hashtagCount++;
+                }
+            });
+        });
+        
+        postInfo.hashtagCount = hashtagCount;
         
         // Store post centrally first
         allPosts.set(postInfo.cid, postInfo);
@@ -278,6 +323,7 @@ function showPosts(hashtag) {
     const postsHtml = Array.from(tagInfo.postIds)
         .map(pid => allPosts.get(pid))
         .filter(post => post !== undefined)
+        .filter(post => maxHashtagsPerPost === null || post.hashtagCount <= maxHashtagsPerPost)
         .sort((a, b) => b.likes - a.likes)
         .map(post => `
             <div class="post-item">
@@ -307,3 +353,19 @@ window.onclick = function(event) {
         closeModal();
     }
 }
+
+document.getElementById('enableMaxHashtags').addEventListener('change', (event) => {
+    maxHashtagsPerPost = event.target.checked ? maxHashtagsLimit : null;
+    document.getElementById('maxHashtagsLimit').disabled = !event.target.checked;
+    forceUpdate = true;
+    updateHashtagList();
+});
+
+document.getElementById('maxHashtagsLimit').addEventListener('change', (event) => {
+    maxHashtagsLimit = parseInt(event.target.value) || 1;
+    if (document.getElementById('enableMaxHashtags').checked) {
+        maxHashtagsPerPost = maxHashtagsLimit;
+        forceUpdate = true;
+        updateHashtagList();
+    }
+});
