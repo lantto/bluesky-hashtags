@@ -10,6 +10,7 @@ let lastUpdateTime = 0;
 const UPDATE_THROTTLE = 1000; // Only update once per second
 let forceUpdate = false;
 const allPosts = new Map(); // Central storage for all posts
+let isHovering = false;
 
 class HashtagInfo {
     constructor() {
@@ -60,7 +61,7 @@ class PostInfo {
 }
 
 function updateHashtagList() {
-    if (isSelecting) {
+    if (isSelecting || isHovering) {
         updatePending = true;
         return;
     }
@@ -104,16 +105,18 @@ function updateHashtagList() {
 
     const html = sortedHashtags.map(([tag, data]) => `
         <div class="hashtag-item">
-            <div>
+            <div class="hashtag-link-container">
                 <a href="https://bsky.app/search?q=%23${encodeURIComponent(tag)}" 
                    target="_blank" 
                    class="hashtag-link" 
                    onclick="event.stopPropagation()">#${tag}</a>
-                <button class="view-posts-btn" onclick="showPosts('${tag}')">View Posts</button>
             </div>
             <div>${data.count}${countUniqueUsersOnly ? '' : ` (${data.users.size} users)`}</div>
             <div>${data.totalLikes}</div>
             <div>${data.averageLikes.toFixed(2)}</div>
+            <div>
+                <button class="view-posts-btn" onclick="showPosts('${tag}')">View Posts</button>
+            </div>
         </div>
     `).join('');
 
@@ -237,6 +240,26 @@ document.addEventListener('mouseleave', () => {
             updateHashtagList();
         }
     }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Delegate hover events for dynamically created elements
+    document.getElementById('hashtag-content').addEventListener('mouseenter', (event) => {
+        if (event.target.matches('.view-posts-btn') || 
+            event.target.matches('.hashtag-link')) {
+            isHovering = true;
+        }
+    }, true);
+
+    document.getElementById('hashtag-content').addEventListener('mouseleave', (event) => {
+        if (event.target.matches('.view-posts-btn') || 
+            event.target.matches('.hashtag-link')) {
+            isHovering = false;
+            if (updatePending) {
+                updateHashtagList();
+            }
+        }
+    }, true);
 });
 
 // Initial setup

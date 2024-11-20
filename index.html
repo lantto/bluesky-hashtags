@@ -16,7 +16,7 @@
         }
         .hashtag-item {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
             gap: 10px;
             margin: 5px 0;
             padding: 8px;
@@ -48,7 +48,7 @@
         }
         .list-header {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
             gap: 10px;
             padding: 8px;
             font-weight: bold;
@@ -126,12 +126,40 @@
         .view-posts-btn:hover {
             background-color: #0052a3;
         }
+
+        .follow-btn {
+            background-color: #0066cc;
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+        .follow-btn:hover {
+            background-color: #0052a3;
+        }
+        .hashtag-link-container {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header-container">
-            <h1>Bluesky Hashtag Tracker</h1>
+            <div>
+                <h1>Bluesky Hashtag Tracker</h1>
+                <a href="https://bsky.app/profile/lantto.bsky.social" 
+                   target="_blank" 
+                   class="follow-btn">
+                    Follow me @ Bsky
+                </a>
+            </div>
             <div class="sort-controls">
                 <select id="sortSelect" class="sort-select">
                     <option value="uses">Sort by Most Uses</option>
@@ -156,6 +184,7 @@
                 <div>Uses</div>
                 <div>Likes</div>
                 <div>Avg Likes</div>
+                <div>Actions</div>
             </div>
             <div id="hashtag-content"></div>
         </div>
