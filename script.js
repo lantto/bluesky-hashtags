@@ -355,8 +355,10 @@ window.onclick = function(event) {
 }
 
 document.getElementById('enableMaxHashtags').addEventListener('change', (event) => {
+    const limitInput = document.getElementById('maxHashtagsLimit');
     maxHashtagsPerPost = event.target.checked ? maxHashtagsLimit : null;
-    document.getElementById('maxHashtagsLimit').disabled = !event.target.checked;
+    limitInput.disabled = !event.target.checked;
+    limitInput.parentElement.style.opacity = event.target.checked ? '1' : '0.5';
     forceUpdate = true;
     updateHashtagList();
 });
