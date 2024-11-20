@@ -148,7 +148,7 @@ function updateHashtagList() {
             <div>${data.totalLikes}</div>
             <div>${data.averageLikes.toFixed(2)}</div>
             <div>
-                <button class="view-posts-btn" onclick="showPosts('${tag}')">View Posts</button>
+                <button class="view-posts-btn" onclick="showPosts('${tag}')"></button>
             </div>
         </div>
     `).join('');

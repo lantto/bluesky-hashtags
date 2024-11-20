@@ -12,6 +12,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://lantto.github.io/bluesky-hashtags/" />
     <meta property="og:image" content="https://lantto.github.io/bluesky-hashtags/og.png" />
+    <meta name="theme-color" content="#f8f9fa">
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -87,23 +88,21 @@
         }
 
         .follow-btn {
-            background-color: #3b82f6;
-            color: white;
+            background-color: transparent;
+            color: #3b82f6;
             text-decoration: none;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 8px;
             font-weight: 500;
             display: inline-flex;
             align-items: center;
             gap: 8px;
             transition: all 0.2s ease-in-out;
-            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+            border: 1px solid #3b82f6;
         }
 
         .follow-btn:hover {
-            transform: translateY(-2px) scale(1.02);
-            background-color: #2563eb;
-            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+            background-color: #eff6ff;
         }
 
         .modal-content {
@@ -231,6 +230,117 @@
         .min-uses-container input[type="number"] {
             width: 60px;
         }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 20px auto;
+                padding: 0 10px;
+            }
+
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .sort-controls {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            #hashtag-list {
+                padding: 15px;
+            }
+
+            .hashtag-item, .list-header {
+                grid-template-columns: 1.5fr 0.8fr 0.8fr 0.8fr 0.8fr;
+                font-size: 12px;
+                gap: 4px;
+                padding: 8px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .sort-select, .min-uses-input {
+                width: 100%;
+                max-width: none;
+            }
+
+            .min-uses-container {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .min-uses-container label {
+                flex-shrink: 0;
+            }
+
+            .min-uses-container input {
+                flex: 1;
+            }
+
+            .checkbox-container {
+                width: auto;
+                justify-content: flex-start;
+                gap: 8px;
+            }
+
+            .checkbox-container + input {
+                width: 100%;
+                margin-top: 8px;
+            }
+
+            .follow-btn {
+                margin: 0 10px;
+                padding: 6px 12px;
+                font-size: 13px;
+                height: auto;
+            }
+
+            .view-posts-btn {
+                width: 28px;
+                height: 28px;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .view-posts-btn::before {
+                content: "👁️" !important;
+                font-size: 14px;
+            }
+
+            .modal-content {
+                margin: 20px auto;
+                padding: 20px;
+                width: 95%;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .modal-content {
+                margin: 10px auto;
+                max-height: 95vh;
+            }
+        }
+
+        .hashtag-item > div,
+        .list-header > div {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .view-posts-btn::before {
+            content: "View Posts";
+        }
     </style>
 </head>
 <body>
@@ -259,7 +369,7 @@
                 <div class="min-uses-container">
                     <div class="checkbox-container">
                         <input type="checkbox" id="enableMaxHashtags">
-                        <label for="enableMaxHashtags">Limit hashtags per post:</label>
+                        <label for="enableMaxHashtags">Limit hashtags:</label>
                     </div>
                     <input type="number" 
                            id="maxHashtagsLimit" 
