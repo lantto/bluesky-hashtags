@@ -68,6 +68,38 @@ class HashtagInfo {
         return this.count * (this.count / this.totalLikes);
     }
 
+    get medianLikes() {
+        if (maxHashtagsPerPost === null) {
+            const likes = Array.from(this.postIds)
+                .map(pid => allPosts.get(pid)?.likes || 0)
+                .sort((a, b) => a - b);
+            
+            if (likes.length === 0) return 0;
+            
+            const mid = Math.floor(likes.length / 2);
+            return likes.length % 2 === 0
+                ? (likes[mid - 1] + likes[mid]) / 2
+                : likes[mid];
+        }
+
+        const validPosts = Array.from(this.postIds)
+            .filter(pid => {
+                const post = allPosts.get(pid);
+                return post && post.hashtagCount <= maxHashtagsPerPost;
+            });
+
+        const likes = validPosts
+            .map(pid => allPosts.get(pid)?.likes || 0)
+            .sort((a, b) => a - b);
+
+        if (likes.length === 0) return 0;
+
+        const mid = Math.floor(likes.length / 2);
+        return likes.length % 2 === 0
+            ? (likes[mid - 1] + likes[mid]) / 2
+            : likes[mid];
+    }
+
     addUse(userId, postId) {
         this.totalCount++;
         this.users.add(userId);
@@ -147,7 +179,7 @@ function updateHashtagList() {
             </div>
             <div>${data.count}${countUniqueUsersOnly ? '' : ` (${data.users.size} users)`}</div>
             <div>${data.totalLikes}</div>
-            <div>${data.averageLikes.toFixed(2)}</div>
+            <div>${data.averageLikes.toFixed(2)} / ${data.medianLikes.toFixed(2)}</div>
             <div>
                 <button class="view-posts-btn" onclick="showPosts('${tag}')"></button>
             </div>
