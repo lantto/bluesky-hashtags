@@ -1,31 +1,36 @@
 const url = "wss://jetstream2.us-east.bsky.network/subscribe?wantedCollections=app.bsky.feed.post&wantedCollections=app.bsky.feed.like";
 
-// Enhanced data structure to store hashtag information
-const hashtagData = new Map(); // Map<string, HashtagInfo>
-let currentSortMode = 'uses'; // 'uses', 'likes', or 'average'
+const hashtagData = new Map();
+let currentSortMode = 'uses';
 let minUsesForAverage = 2;
+let countUniqueUsersOnly = true;
 
-// Helper class to store hashtag information
 class HashtagInfo {
     constructor() {
-        this.count = 0;          
+        this.totalCount = 0;     // Total number of uses
         this.totalLikes = 0;     
         this.posts = new Map();  
+        this.users = new Set();  // Set of unique users
+    }
+
+    get count() {
+        return countUniqueUsersOnly ? this.users.size : this.totalCount;
     }
 
     get averageLikes() {
         return this.count > 0 ? this.totalLikes / this.count : 0;
     }
 
-    // New flop score formula
     get flopScore() {
-        // If no likes, use count squared to prioritize highly used hashtags
         if (this.totalLikes === 0) {
             return this.count * this.count;
         }
-        // Otherwise, multiply uses by the ratio of uses to likes
-        // This will give higher scores to tags with more uses and fewer likes
         return this.count * (this.count / this.totalLikes);
+    }
+
+    addUse(userId) {
+        this.totalCount++;
+        this.users.add(userId);
     }
 }
 
@@ -43,11 +48,9 @@ class PostInfo {
 function updateHashtagList() {
     const hashtagContent = document.getElementById('hashtag-content');
     
-    // Convert Map to array and sort based on selected mode
     let sortedHashtags = Array.from(hashtagData.entries());
 
     if (currentSortMode === 'average') {
-        // Filter by minimum uses when sorting by average
         sortedHashtags = sortedHashtags.filter(([_, data]) => data.count >= minUsesForAverage);
     }
 
@@ -60,7 +63,6 @@ function updateHashtagList() {
                 case 'average':
                     return b[1].averageLikes - a[1].averageLikes;
                 case 'flop':
-                    // Only consider hashtags with minimum uses
                     if (a[1].count < minUsesForAverage) return 1;
                     if (b[1].count < minUsesForAverage) return -1;
                     return b[1].flopScore - a[1].flopScore;
@@ -68,12 +70,12 @@ function updateHashtagList() {
                     return b[1].count - a[1].count;
             }
         })
-        .slice(0, 20); // Increased to 20
+        .slice(0, 20);
 
     const html = sortedHashtags.map(([tag, data]) => `
         <div class="hashtag-item">
             <div>#${tag}</div>
-            <div>${data.count}</div>
+            <div>${data.count}${countUniqueUsersOnly ? '' : ` (${data.users.size} users)`}</div>
             <div>${data.totalLikes}</div>
             <div>${data.averageLikes.toFixed(2)}</div>
         </div>
@@ -91,27 +93,23 @@ ws.onopen = () => {
 ws.onmessage = (event) => {
     const json = JSON.parse(event.data);
 
-    // Handle new posts
     if (json.commit?.operation === 'create' && 
         json.commit?.collection === 'app.bsky.feed.post') {
         
         const facets = json.commit?.record?.facets || [];
         const postInfo = new PostInfo(json);
         
-        // Process hashtags in the post
         facets.forEach(facet => {
             facet.features.forEach(feature => {
                 if (feature.$type === 'app.bsky.richtext.facet#tag') {
                     const hashtag = feature.tag.toLowerCase();
                     
-                    // Initialize hashtag data if needed
                     if (!hashtagData.has(hashtag)) {
                         hashtagData.set(hashtag, new HashtagInfo());
                     }
                     
-                    // Update hashtag information
                     const tagInfo = hashtagData.get(hashtag);
-                    tagInfo.count++;
+                    tagInfo.addUse(postInfo.did);
                     tagInfo.posts.set(postInfo.cid, postInfo);
                 }
             });
@@ -120,13 +118,11 @@ ws.onmessage = (event) => {
         updateHashtagList();
     }
 
-    // Handle likes
     if (json.commit?.operation === 'create' && 
         json.commit?.collection === 'app.bsky.feed.like') {
         
         const likedPostCid = json.commit.record.subject.cid;
         
-        // Update likes count for all hashtags that were in the liked post
         hashtagData.forEach(tagInfo => {
             if (tagInfo.posts.has(likedPostCid)) {
                 const post = tagInfo.posts.get(likedPostCid);
@@ -146,22 +142,24 @@ ws.onclose = () => {
     console.log("WebSocket connection closed");
 };
 
-// Add event listener for sort selection
 document.getElementById('sortSelect').addEventListener('change', (event) => {
     currentSortMode = event.target.value;
-    // Show/hide min uses input based on sort mode
     const minUsesContainer = document.getElementById('minUsesContainer');
     minUsesContainer.classList.toggle('visible', 
         currentSortMode === 'average' || currentSortMode === 'flop');
     updateHashtagList();
 });
 
-// Add event listener for minimum uses input
 document.getElementById('minUses').addEventListener('change', (event) => {
     minUsesForAverage = parseInt(event.target.value) || 2;
-    if (currentSortMode === 'average') {
+    if (currentSortMode === 'average' || currentSortMode === 'flop') {
         updateHashtagList();
     }
+});
+
+document.getElementById('uniqueUsers').addEventListener('change', (event) => {
+    countUniqueUsersOnly = event.target.checked;
+    updateHashtagList();
 });
 
 // Initial setup
