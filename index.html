@@ -276,23 +276,21 @@
                 gap: 8px;
             }
 
-            .min-uses-container label {
+            .min-uses-container .checkbox-container {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-right: 8px;
                 flex-shrink: 0;
             }
 
-            .min-uses-container input {
+            .min-uses-container .checkbox-container label {
+                margin: 0;
+            }
+
+            .min-uses-container input[type="number"] {
                 flex: 1;
-            }
-
-            .checkbox-container {
-                width: auto;
-                justify-content: flex-start;
-                gap: 8px;
-            }
-
-            .checkbox-container + input {
-                width: 100%;
-                margin-top: 8px;
+                min-width: 0;
             }
 
             .follow-btn {
