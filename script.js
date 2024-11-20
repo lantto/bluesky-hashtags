@@ -151,6 +151,11 @@ function updateHashtagList() {
         sortedHashtags = sortedHashtags.filter(([_, data]) => data.count >= minUsesForAverage);
     }
 
+    // Filter out hashtags with median < 1 when in potential mode
+    if (currentSortMode === 'potential') {
+        sortedHashtags = sortedHashtags.filter(([_, data]) => data.medianLikes >= 1);
+    }
+
     sortedHashtags = sortedHashtags.sort((a, b) => {
             switch (currentSortMode) {
                 case 'uses':
@@ -160,6 +165,8 @@ function updateHashtagList() {
                 case 'leastLikes':
                     return a[1].totalLikes - b[1].totalLikes;
                 case 'average':
+                    return b[1].averageLikes - a[1].averageLikes;
+                case 'potential':
                     return b[1].averageLikes - a[1].averageLikes;
                 case 'flop':
                     return b[1].flopScore - a[1].flopScore;
@@ -179,7 +186,7 @@ function updateHashtagList() {
             </div>
             <div>${data.count}${countUniqueUsersOnly ? '' : ` (${data.users.size} users)`}</div>
             <div>${data.totalLikes}</div>
-            <div>${data.averageLikes.toFixed(2)} / ${data.medianLikes.toFixed(2)}</div>
+            <div>${data.averageLikes.toFixed(2)} <span class="median-value">(${data.medianLikes.toFixed(2)})</span></div>
             <div>
                 <button class="view-posts-btn" onclick="showPosts('${tag}')"></button>
             </div>

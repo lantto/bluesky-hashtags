@@ -423,6 +423,23 @@
                 justify-content: center;
             }
         }
+
+        .median-value {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .list-header > div:nth-child(4)::after {
+            content: " / med";
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        @media (max-width: 480px) {
+            .median-value {
+                font-size: 0.8em;
+            }
+        }
     </style>
 </head>
 <body>
@@ -442,6 +459,7 @@
                     <option value="likes">Sort by Most Likes</option>
                     <option value="leastLikes">Sort by Least Likes</option>
                     <option value="average">Sort by Average Likes</option>
+                    <option value="potential">Sort by Like Potential (Med ≥ 1)</option>
                     <option value="flop">Sort by Most Used but Least Liked</option>
                 </select>
                 <div id="minUsesContainer" class="min-uses-container" style="opacity: 0.5;">
@@ -471,7 +489,7 @@
                 <div>Hashtag</div>
                 <div>Uses</div>
                 <div>Likes</div>
-                <div>Avg / Med Likes</div>
+                <div>Avg</div>
                 <div>Actions</div>
             </div>
             <div id="hashtag-content"></div>
