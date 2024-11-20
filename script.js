@@ -8,13 +8,24 @@ let minUsesForAverage = 2;
 // Helper class to store hashtag information
 class HashtagInfo {
     constructor() {
-        this.count = 0;          // Number of posts using this hashtag
-        this.totalLikes = 0;     // Total likes on posts with this hashtag
-        this.posts = new Map();  // Map<cid, PostInfo>
+        this.count = 0;          
+        this.totalLikes = 0;     
+        this.posts = new Map();  
     }
 
     get averageLikes() {
         return this.count > 0 ? this.totalLikes / this.count : 0;
+    }
+
+    // New flop score formula
+    get flopScore() {
+        // If no likes, use count squared to prioritize highly used hashtags
+        if (this.totalLikes === 0) {
+            return this.count * this.count;
+        }
+        // Otherwise, multiply uses by the ratio of uses to likes
+        // This will give higher scores to tags with more uses and fewer likes
+        return this.count * (this.count / this.totalLikes);
     }
 }
 
@@ -48,6 +59,11 @@ function updateHashtagList() {
                     return b[1].totalLikes - a[1].totalLikes;
                 case 'average':
                     return b[1].averageLikes - a[1].averageLikes;
+                case 'flop':
+                    // Only consider hashtags with minimum uses
+                    if (a[1].count < minUsesForAverage) return 1;
+                    if (b[1].count < minUsesForAverage) return -1;
+                    return b[1].flopScore - a[1].flopScore;
                 default:
                     return b[1].count - a[1].count;
             }
@@ -135,7 +151,8 @@ document.getElementById('sortSelect').addEventListener('change', (event) => {
     currentSortMode = event.target.value;
     // Show/hide min uses input based on sort mode
     const minUsesContainer = document.getElementById('minUsesContainer');
-    minUsesContainer.classList.toggle('visible', currentSortMode === 'average');
+    minUsesContainer.classList.toggle('visible', 
+        currentSortMode === 'average' || currentSortMode === 'flop');
     updateHashtagList();
 });
 
