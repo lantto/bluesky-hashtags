@@ -70,7 +70,10 @@ function updateHashtagList() {
     
     let sortedHashtags = Array.from(hashtagData.entries());
 
-    sortedHashtags = sortedHashtags.filter(([_, data]) => data.count >= minUsesForAverage);
+    // Only apply min uses filter if not sorting by uses
+    if (currentSortMode !== 'uses') {
+        sortedHashtags = sortedHashtags.filter(([_, data]) => data.count >= minUsesForAverage);
+    }
 
     sortedHashtags = sortedHashtags.sort((a, b) => {
             switch (currentSortMode) {
@@ -167,7 +170,20 @@ ws.onclose = () => {
 
 document.getElementById('sortSelect').addEventListener('change', (event) => {
     currentSortMode = event.target.value;
-    forceUpdate = true;  // Bypass throttle
+    
+    // Enable/disable min uses input based on sort mode
+    const minUsesInput = document.getElementById('minUses');
+    const minUsesContainer = document.getElementById('minUsesContainer');
+    
+    if (currentSortMode === 'uses') {
+        minUsesInput.disabled = true;
+        minUsesContainer.style.opacity = '0.5';
+    } else {
+        minUsesInput.disabled = false;
+        minUsesContainer.style.opacity = '1';
+    }
+    
+    forceUpdate = true;
     updateHashtagList();
 });
 
