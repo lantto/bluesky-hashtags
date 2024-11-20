@@ -2,6 +2,7 @@ const url = "wss://jetstream2.us-east.bsky.network/subscribe?wantedCollections=a
 
 // Enhanced data structure to store hashtag information
 const hashtagData = new Map(); // Map<string, HashtagInfo>
+let currentSortMode = 'uses'; // 'uses', 'likes', or 'average'
 
 // Helper class to store hashtag information
 class HashtagInfo {
@@ -27,59 +28,35 @@ class PostInfo {
     }
 }
 
-// Add at the top with other constants
-let likedHashtagsSortMode = 'total'; // 'total' or 'average'
-
-// Function to update the hashtag displays
-function updateHashtagDisplays() {
-    updateRegularHashtagList();
-    updateLikedHashtagList();
-}
-
-function updateRegularHashtagList() {
-    const hashtagList = document.getElementById('hashtag-list');
+function updateHashtagList() {
+    const hashtagContent = document.getElementById('hashtag-content');
     
-    // Convert Map to array and sort by count
+    // Convert Map to array and sort based on selected mode
     const sortedHashtags = Array.from(hashtagData.entries())
-        .sort((a, b) => b[1].count - a[1].count)
-        .slice(0, 10);
-
-    const html = sortedHashtags.map(([tag, data]) => `
-        <div class="hashtag-item">
-            <span>#${tag}</span>
-            <span>${data.count}</span>
-        </div>
-    `).join('');
-
-    hashtagList.innerHTML = html || 'Waiting for hashtags...';
-}
-
-function updateLikedHashtagList() {
-    const likedList = document.getElementById('liked-hashtags');
-    
-    // Convert Map to array, filter out 0 likes, and sort based on selected mode
-    const sortedByLikes = Array.from(hashtagData.entries())
-        .filter(([_, data]) => data.totalLikes > 0)  // Only include hashtags with likes
         .sort((a, b) => {
-            if (likedHashtagsSortMode === 'total') {
-                return b[1].totalLikes - a[1].totalLikes;
-            } else {
-                return b[1].averageLikes - a[1].averageLikes;
+            switch (currentSortMode) {
+                case 'uses':
+                    return b[1].count - a[1].count;
+                case 'likes':
+                    return b[1].totalLikes - a[1].totalLikes;
+                case 'average':
+                    return b[1].averageLikes - a[1].averageLikes;
+                default:
+                    return b[1].count - a[1].count;
             }
         })
         .slice(0, 10);
 
-    const html = sortedByLikes.map(([tag, data]) => `
+    const html = sortedHashtags.map(([tag, data]) => `
         <div class="hashtag-item">
-            <span>#${tag}</span>
-            <span>
-                Total: ${data.totalLikes} | 
-                Avg: ${data.averageLikes.toFixed(2)}
-            </span>
+            <div>#${tag}</div>
+            <div>${data.count}</div>
+            <div>${data.totalLikes}</div>
+            <div>${data.averageLikes.toFixed(2)}</div>
         </div>
     `).join('');
 
-    likedList.innerHTML = html || 'Waiting for liked hashtags...';
+    hashtagContent.innerHTML = html || 'Waiting for hashtags...';
 }
 
 const ws = new WebSocket(url);
@@ -117,7 +94,7 @@ ws.onmessage = (event) => {
             });
         });
         
-        updateHashtagDisplays();
+        updateHashtagList();
     }
 
     // Handle likes
@@ -132,7 +109,7 @@ ws.onmessage = (event) => {
                 const post = tagInfo.posts.get(likedPostCid);
                 post.likes++;
                 tagInfo.totalLikes++;
-                updateHashtagDisplays();
+                updateHashtagList();
             }
         });
     }
@@ -146,20 +123,11 @@ ws.onclose = () => {
     console.log("WebSocket connection closed");
 };
 
-// Add after the WebSocket setup
-document.getElementById('sortTotal').addEventListener('click', () => {
-    likedHashtagsSortMode = 'total';
-    document.getElementById('sortTotal').classList.add('active');
-    document.getElementById('sortAverage').classList.remove('active');
-    updateLikedHashtagList();
-});
-
-document.getElementById('sortAverage').addEventListener('click', () => {
-    likedHashtagsSortMode = 'average';
-    document.getElementById('sortAverage').classList.add('active');
-    document.getElementById('sortTotal').classList.remove('active');
-    updateLikedHashtagList();
+// Add event listener for sort selection
+document.getElementById('sortSelect').addEventListener('change', (event) => {
+    currentSortMode = event.target.value;
+    updateHashtagList();
 });
 
 // Initial display setup
-updateHashtagDisplays();
+updateHashtagList();

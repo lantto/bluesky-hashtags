@@ -4,63 +4,66 @@
     <title>Bluesky Hashtag Tracker</title>
     <style>
         .container {
-            display: flex;
-            justify-content: space-around;
             margin: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
         }
-        .list-container {
-            flex: 1;
-            margin: 0 20px;
-        }
-        #hashtag-list, #liked-hashtags {
+        #hashtag-list {
             padding: 20px;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
         .hashtag-item {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 10px;
             margin: 5px 0;
-            padding: 5px;
+            padding: 8px;
             background-color: #f5f5f5;
-        }
-        h2 {
-            color: #333;
+            border-radius: 3px;
         }
         .header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 15px;
         }
-        .sort-button {
+        .sort-select {
             padding: 5px 10px;
-            cursor: pointer;
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
             border-radius: 3px;
+            border: 1px solid #ccc;
+            font-size: 14px;
         }
-        .sort-button.active {
-            background-color: #007bff;
-            color: white;
+        .list-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 10px;
+            padding: 8px;
+            font-weight: bold;
+            border-bottom: 2px solid #ccc;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
-    <h1>Bluesky Trending Hashtags</h1>
     <div class="container">
-        <div class="list-container">
-            <h2>Most Used Hashtags</h2>
-            <div id="hashtag-list"></div>
+        <div class="header-container">
+            <h1>Bluesky Hashtag Tracker</h1>
+            <select id="sortSelect" class="sort-select">
+                <option value="uses">Sort by Uses</option>
+                <option value="likes">Sort by Total Likes</option>
+                <option value="average">Sort by Average Likes</option>
+            </select>
         </div>
-        <div class="list-container">
-            <div class="header-container">
-                <h2>Most Liked Hashtags</h2>
-                <div>
-                    <button id="sortTotal" class="sort-button active">Total Likes</button>
-                    <button id="sortAverage" class="sort-button">Average Likes</button>
-                </div>
+        <div id="hashtag-list">
+            <div class="list-header">
+                <div>Hashtag</div>
+                <div>Uses</div>
+                <div>Likes</div>
+                <div>Avg Likes</div>
             </div>
-            <div id="liked-hashtags"></div>
+            <div id="hashtag-content"></div>
         </div>
     </div>
     <script src="script.js"></script>
