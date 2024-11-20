@@ -100,6 +100,10 @@ class HashtagInfo {
             : likes[mid];
     }
 
+    get potentialScore() {
+        return this.averageLikes * this.medianLikes;
+    }
+
     addUse(userId, postId) {
         this.totalCount++;
         this.users.add(userId);
@@ -167,7 +171,7 @@ function updateHashtagList() {
                 case 'average':
                     return b[1].averageLikes - a[1].averageLikes;
                 case 'potential':
-                    return b[1].averageLikes - a[1].averageLikes;
+                    return b[1].potentialScore - a[1].potentialScore;
                 case 'flop':
                     return b[1].flopScore - a[1].flopScore;
                 default:
