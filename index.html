@@ -440,12 +440,25 @@
                 font-size: 0.8em;
             }
         }
+
+        .gradient-text {
+            background: linear-gradient(45deg, #3b82f6, #2563eb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 700;
+        }
+
+
+        h1 {
+            color: #2c3e50;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header-container">
-            <h1>Bluesky Hashtag Tracker</h1>
+            <h1><span class="gradient-text">Bluesky</span> Hashtag Tracker</h1>
             <a href="https://bsky.app/profile/lantto.bsky.social" 
                target="_blank" 
                class="follow-btn">
