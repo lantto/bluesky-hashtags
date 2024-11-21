@@ -19,6 +19,26 @@ const HASHTAG_THROTTLE = 50; // Show a hashtag every 50ms
 let startTime = null;
 let timeDisplayInterval = null;
 
+document.addEventListener('DOMContentLoaded', function() {
+    const moreOptionsBtn = document.getElementById('moreOptionsBtn');
+    const additionalControls = document.getElementById('additionalControls');
+
+    moreOptionsBtn.addEventListener('click', function() {
+        additionalControls.classList.toggle('show');
+        moreOptionsBtn.textContent = additionalControls.classList.contains('show') 
+            ? 'Hide options' 
+            : 'More options';
+    });
+
+    // Close additional controls when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.sort-controls')) {
+            additionalControls.classList.remove('show');
+            moreOptionsBtn.textContent = 'More options';
+        }
+    });
+});
+
 function updateRealtimeHashtag(hashtag) {
     const container = document.getElementById('realtime-hashtag');
     const element = document.createElement('div');
