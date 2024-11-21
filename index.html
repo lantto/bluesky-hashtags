@@ -14,6 +14,10 @@
     <meta property="og:image" content="https://lantto.github.io/bluesky-hashtags/og.png" />
     <meta name="theme-color" content="#f8f9fa">
     <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: #f8f9fa;
@@ -463,7 +467,7 @@
             background: rgba(255, 255, 255, 0.8);
             padding: 8px 16px;
             border-radius: 8px;
-            height: 40px;
+            height: 60px;
             position: relative;
             width: 300px;
             overflow: hidden;
@@ -521,7 +525,6 @@
             .realtime-container {
                 width: 100%;
                 order: 2;
-                height: 40px;
             }
         }
 
