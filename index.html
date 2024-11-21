@@ -99,6 +99,8 @@
             gap: 8px;
             transition: all 0.2s ease-in-out;
             border: 1px solid #3b82f6;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .follow-btn:hover {
@@ -211,10 +213,13 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 24px;
+            gap: 20px;
+            flex-wrap: wrap;
         }
 
         .header-container h1 {
             margin: 0;
+            white-space: nowrap;
         }
 
         .controls-container {
@@ -462,6 +467,8 @@
             position: relative;
             width: 300px;
             overflow: hidden;
+            flex-grow: 1;
+            min-width: 200px;
         }
 
         #realtime-hashtag {
@@ -492,7 +499,25 @@
             }
         }
 
+        @media (max-width: 768px) {
+            .header-container {
+                justify-content: center;
+                gap: 15px;
+            }
+            
+            .realtime-container {
+                order: 3;
+                width: 100%;
+            }
+        }
+
         @media (max-width: 480px) {
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
             .realtime-container {
                 width: 100%;
                 order: 2;
