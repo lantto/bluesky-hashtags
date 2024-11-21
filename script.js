@@ -2,7 +2,7 @@ const url = "wss://jetstream2.us-east.bsky.network/subscribe?wantedCollections=a
 
 const hashtagData = new Map();
 let currentSortMode = 'uses';
-let minUsesForAverage = 2;
+let minUsesForAverage = 3;
 let countUniqueUsersOnly = true;
 let isSelecting = false;
 let updatePending = false;
