@@ -16,6 +16,8 @@ let maxHashtagsLimit = 1; // Default limit when enabled
 let topListLimit = 20; // Default value
 let lastHashtagTime = 0;
 const HASHTAG_THROTTLE = 50; // Show a hashtag every 50ms
+let startTime = null;
+let timeDisplayInterval = null;
 
 function updateRealtimeHashtag(hashtag) {
     const container = document.getElementById('realtime-hashtag');
@@ -240,6 +242,9 @@ const ws = new WebSocket(url);
 
 ws.onopen = () => {
     console.log("Connected to Bluesky WebSocket");
+    updateTimeDisplay();
+    startTime = new Date();
+    timeDisplayInterval = setInterval(updateTimeDisplay, 1000);
 };
 
 ws.onmessage = (event) => {
@@ -319,6 +324,10 @@ ws.onerror = (error) => {
 
 ws.onclose = () => {
     console.log("WebSocket connection closed");
+    if (timeDisplayInterval) {
+        clearInterval(timeDisplayInterval);
+        timeDisplayInterval = null;
+    }
 };
 
 document.getElementById('sortSelect').addEventListener('change', (event) => {
@@ -464,3 +473,25 @@ document.getElementById('topListLimit').addEventListener('change', (event) => {
     forceUpdate = true;  // Bypass throttle
     updateHashtagList();
 });
+
+function updateTimeDisplay() {
+    if (!startTime) {
+        // Show initial state immediately
+        document.getElementById('tracking-time').textContent = 'Tracking for <1 minute';
+        return;
+    }
+    
+    const now = new Date();
+    const diff = now - startTime;
+    const seconds = Math.floor(diff / 1000);
+    
+    let timeStr;
+    if (seconds < 60) {
+        timeStr = '<1 minute';
+    } else {
+        const minutes = Math.floor(seconds / 60);
+        timeStr = `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+    }
+            
+    document.getElementById('tracking-time').textContent = `Tracking for ${timeStr}`;
+}

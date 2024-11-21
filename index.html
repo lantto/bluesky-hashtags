@@ -524,12 +524,47 @@
                 height: 40px;
             }
         }
+
+        .title-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            position: relative;
+        }
+        
+        .title-container h1 {
+            margin-bottom: 0;
+        }
+        
+        #tracking-time {
+            position: absolute;
+            top: 90%;
+            left: 0;
+            font-size: 0.7em;
+            color: #666;
+            white-space: nowrap;
+        }
+        
+        @media (max-width: 480px) {
+            .title-container {
+                align-items: center;
+                margin-bottom: 12px;
+            }
+            
+            #tracking-time {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header-container">
-            <h1><span class="gradient-text">Bluesky</span> Hashtag Tracker</h1>
+            <div class="title-container">
+                <h1><span class="gradient-text">Bluesky</span> Hashtag Tracker</h1>
+                <div id="tracking-time">Connecting...</div>
+            </div>
             <div class="realtime-container">
                 <div id="realtime-hashtag"></div>
             </div>
