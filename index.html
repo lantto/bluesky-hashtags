@@ -453,12 +453,61 @@
         h1 {
             color: #2c3e50;
         }
+
+        .realtime-container {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 8px 16px;
+            border-radius: 8px;
+            height: 40px;
+            position: relative;
+            width: 300px;
+            overflow: hidden;
+        }
+
+        #realtime-hashtag {
+            position: relative;
+            height: 100%;
+            width: 100%;
+        }
+
+        .hashtag-item-realtime {
+            position: absolute;
+            font-size: 1em;
+            color: #3b82f6;
+            font-weight: 500;
+            white-space: nowrap;
+            animation: justFade 1.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes justFade {
+            0% {
+                opacity: 0;
+            }
+            15% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .realtime-container {
+                width: 100%;
+                order: 2;
+                height: 40px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header-container">
             <h1><span class="gradient-text">Bluesky</span> Hashtag Tracker</h1>
+            <div class="realtime-container">
+                <div id="realtime-hashtag"></div>
+            </div>
             <a href="https://bsky.app/profile/lantto.bsky.social" 
                target="_blank" 
                class="follow-btn">

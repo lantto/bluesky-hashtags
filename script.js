@@ -14,6 +14,42 @@ let isHovering = false;
 let maxHashtagsPerPost = null; // null means no limit is active
 let maxHashtagsLimit = 1; // Default limit when enabled
 let topListLimit = 20; // Default value
+let lastHashtagTime = 0;
+const HASHTAG_THROTTLE = 50; // Show a hashtag every 50ms
+
+function updateRealtimeHashtag(hashtag) {
+    const container = document.getElementById('realtime-hashtag');
+    const element = document.createElement('div');
+    element.textContent = `#${hashtag}`;
+    element.classList.add('hashtag-item-realtime');
+    
+    // Random positioning with adjusted overflow
+    const containerRect = container.getBoundingClientRect();
+    
+    // More overflow to the left (-60px) than right (+20px)
+    const randomX = Math.random() * (containerRect.width + 80) - 60; 
+    // Less vertical overflow (+/- 15px)
+    const randomY = Math.random() * (containerRect.height + 20) - 10; 
+    
+    element.style.left = `${randomX}px`;
+    element.style.top = `${randomY}px`;
+    
+    // Clean up old elements that have finished animating
+    const existingElements = container.getElementsByClassName('hashtag-item-realtime');
+    Array.from(existingElements).forEach(el => {
+        if (el.style.opacity === '0') {
+            container.removeChild(el);
+        }
+    });
+    
+    container.appendChild(element);
+    
+    setTimeout(() => {
+        if (container.contains(element)) {
+            container.removeChild(element);
+        }
+    }, 1500);
+}
 
 class HashtagInfo {
     constructor() {
@@ -234,6 +270,13 @@ ws.onmessage = (event) => {
             facet.features.forEach(feature => {
                 if (feature.$type === 'app.bsky.richtext.facet#tag') {
                     const hashtag = feature.tag.toLowerCase();
+                    
+                    // Add rate limiting for hashtag display
+                    const now = Date.now();
+                    if (now - lastHashtagTime >= HASHTAG_THROTTLE) {
+                        updateRealtimeHashtag(hashtag);
+                        lastHashtagTime = now;
+                    }
                     
                     if (!hashtagData.has(hashtag)) {
                         hashtagData.set(hashtag, new HashtagInfo());
