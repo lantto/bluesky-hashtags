@@ -48,10 +48,8 @@ function updateRealtimeHashtag(hashtag) {
     // Random positioning with adjusted overflow
     const containerRect = container.getBoundingClientRect();
     
-    // More overflow to the left (-60px) than right (+20px)
-    const randomX = Math.random() * (containerRect.width + 80) - 60; 
-    // Less vertical overflow (+/- 15px)
-    const randomY = Math.random() * (containerRect.height + 20) - 10; 
+    const randomX = Math.random() * (containerRect.width + 40) - 40; 
+    const randomY = Math.random() * (containerRect.height + 15) - 20; 
     
     element.style.left = `${randomX}px`;
     element.style.top = `${randomY}px`;
